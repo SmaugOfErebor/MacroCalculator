@@ -3,24 +3,22 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Macro Calculator</title>
+    <title>USDA Multi-Food Macro Tracker</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <h1>Macro Calculator</h1>
+    <h2>Search for a Food</h2>
+    <input type="text" id="searchTerm" placeholder="Enter food name">
+    <button onclick="searchFood()">Search</button>
 
-    <label>Protein (grams):</label>
-    <input type="number" id="protein" placeholder="Enter protein in grams">
+    <select id="foodResults" size="5"></select>
+    <button onclick="addSelectedFood()">Add Selected Food</button>
 
-    <label>Carbs (grams):</label>
-    <input type="number" id="carbs" placeholder="Enter carbs in grams">
+    <h3>Selected Foods</h3>
+    <div id="selectedFoods"></div>
 
-    <label>Fat (grams):</label>
-    <input type="number" id="fat" placeholder="Enter fat in grams">
-
-    <button onclick="calculate()">Calculate</button>
-
+    <button onclick="calculateAllMacros()">Calculate Macros</button>
     <div id="results"></div>
 
     <script src="script.js"></script>
