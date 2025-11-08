@@ -42,7 +42,7 @@ async function searchFood() {
 
     json.foods.forEach(food => {
         const option = document.createElement('option');
-        option.value = food.fdcId;
+        option.json = food;
         option.textContent = food.description;
         foodResultsSelector.appendChild(option);
     });
@@ -54,41 +54,24 @@ async function searchFood() {
 function addSelectedFood() {
     // Ensure there is a selected item.
     const selector = document.getElementById(foodResultsSelectorId);
-    const selectedOption = selector.options[selector.selectedIndex];
-    if (!selectedOption) {
+    const selectedFood = selector.options[selector.selectedIndex];
+    if (!selectedFood) {
         return;
     }
 
     // Disallow duplicates.
-    const fdcId = selectedOption.value;
-    if (selectedFoods.some(f => f.fdcId === fdcId)) {
+    const fdcId = selectedFood.json.fdcId;
+    if (selectedFoods.some(f => f.json.fdcId === fdcId)) {
         return;
     }
 
-    const description = selectedOption.textContent;
-    selectedFoods.push({ fdcId, description, amount: 0 });
-    renderSelectedFoods();
-}
+    // Add the food JSON to the selected foods array.
+    selectedFoods.push(selectedFood.json);
 
-/**
- * Adds an input for each type of selected food.
- */
-function renderSelectedFoods() {
+    // Add a selected food template visually corresponding to this new selected food.
     const selectedFoodsDiv = document.getElementById('selectedFoodsDiv');
-    // TODO: Not ideal to completely wipe and rebuild every time something is added.
-    // TODO: Loosely related, also need to add delete buttons to each entry.
-    selectedFoodsDiv.innerHTML = '';
-
-    selectedFoods.forEach((food, index) => {
-        const div = document.createElement('div');
-        div.className = 'food-entry';
-        div.innerHTML = `
-            <strong>${food.description}</strong><br>
-            <label>Amount eaten (grams):</label>
-            <input type="number" value="${food.amount}" onchange="updateAmount(${index}, this.value)">
-        `;
-        selectedFoodsDiv.appendChild(div);
-    });
+    const newSelectedFood = new SelectedFoodItem(selectedFood.json);
+    selectedFoodsDiv.appendChild(newSelectedFood.element);
 }
 
 function updateAmount(index, value) {
@@ -107,7 +90,7 @@ async function calculateAllMacros() {
     for (const food of selectedFoods) {
         const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${getApiKey()}`;
 
-        const json = await fetchJson();
+        const json = await fetchJson(url);
         if (!json) {
             // TODO: Give some feedback to the user.
             return;
@@ -137,7 +120,7 @@ async function calculateAllMacros() {
         // Food amount is typically 100g, but not in all cases.
         // Especially for branded foods, the amount may be different.
         // The existence of the "servingSize" key in the returned data means the service is specified.
-        const scale = food.amount / 100;
+        const scale = food.amountEaten / 100;
         totalProtein += protein * scale;
         totalCarbs += carbs * scale;
         totalFat += fat * scale;
@@ -179,4 +162,16 @@ async function fetchJson(url) {
     }
 
     return json;
+}
+
+class SelectedFoodItem {
+    constructor(json) {
+        const template = document.getElementById('selectedFoodTemplate');
+        this.element = template.content.cloneNode(true).children[0];
+        this.element.querySelector('.selectedFoodName').textContent = json.description;
+
+        this.element.querySelector('.eatenAmountInput').addEventListener('input', (e) => {
+            json.amountEaten = e.target.value;
+        });
+    }
 }
