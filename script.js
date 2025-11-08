@@ -34,25 +34,9 @@ async function searchFood() {
     const foodResultsSelector = document.getElementById(foodResultsSelectorId);
     foodResultsSelector.innerHTML = '';
 
-    let response;
-    try {
-        response = await fetch(url);
-    } catch (error) {
-        console.error('Error fetching HTTP response:', error);
-        // TODO: Give some feedback to the user.
-        return;
-    }
+    const json = await fetchJson(url);
 
-    let data;
-    try {
-        data = await response.json();
-    } catch (error) {
-        console.error('Error retrieving HTTP response JSON:', error);
-        // TODO: Give some feedback to the user.
-        return;
-    }
-
-    data.foods.forEach(food => {
+    json.foods.forEach(food => {
         const option = document.createElement('option');
         option.value = food.fdcId;
         option.textContent = food.description;
@@ -107,35 +91,52 @@ function updateAmount(index, value) {
     selectedFoods[index].amount = parseFloat(value) || 0;
 }
 
+/**
+ * Calculates the sum of macronutirents and calories from all selected foods.
+ */
 async function calculateAllMacros() {
-    let totalProtein = 0, totalCarbs = 0, totalFat = 0;
+    let totalProtein = 0;
+    let totalCarbs = 0;
+    let totalFat = 0;
 
+    // Sum all of the macronutrients in all selected foods.
     for (const food of selectedFoods) {
-        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${document.getElementById(apiKeyInputId).value}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            const nutrients = data.foodNutrients;
-            console.log(`Data for ${food.description}:`, data);
+        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${getApiKey()}`;
 
-            let protein = 0, carbs = 0, fat = 0;
-            nutrients.forEach(n => {
-                console.log(`Nutrient:`, n);
-                if (n.nutrient.id === 1003) protein = n.amount;
-                if (n.nutrient.id === 1004) fat = n.amount;
-                if (n.nutrient.id === 1005) carbs = n.amount;
-            });
-
-            // Food amount is typically 100g, but not in all cases.
-            // Especially for branded foods, the amount may be different.
-            // The existence of the "servingSize" key in the returned data means the service is specified.
-            const scale = food.amount / 100;
-            totalProtein += protein * scale;
-            totalCarbs += carbs * scale;
-            totalFat += fat * scale;
-        } catch (error) {
-            console.error(`Error fetching data for ${food.description}:`, error);
+        const json = await fetchJson();
+        if (!json) {
+            // TODO: Give some feedback to the user.
+            return;
         }
+
+        let protein = 0;
+        let carbs = 0;
+        let fat = 0;
+
+        // TODO: It may be worth exiting early once all three macronutrients are found. There can be a lot of returned nutrient values.
+        json.foodNutrients.forEach(n => {
+            switch (n.nutrient.id) {
+                case 1003:
+                    protein = n.amount;
+                    break;
+
+                case 1004:
+                    fat = n.amount;
+                    break;
+
+                case 1005:
+                    carbs = n.amount;
+                    break;
+            }
+        });
+
+        // Food amount is typically 100g, but not in all cases.
+        // Especially for branded foods, the amount may be different.
+        // The existence of the "servingSize" key in the returned data means the service is specified.
+        const scale = food.amount / 100;
+        totalProtein += protein * scale;
+        totalCarbs += carbs * scale;
+        totalFat += fat * scale;
     }
 
     const calories = (totalProtein * 4 + totalCarbs * 4 + totalFat * 9).toFixed(1);
@@ -146,4 +147,32 @@ async function calculateAllMacros() {
         <p><strong>Fat:</strong> ${totalFat.toFixed(1)}g</p>
         <p><strong>Calories:</strong> ${calories}</p>
     `;
+}
+
+/**
+ * Performs the HTTP response fetch and awaiting the JSON from the response.
+ * In the future, will give detailed error feedback to the user.
+ * @param {string} url
+ * @returns Either undefined in the case of an error of the JSON from the HTTP response.
+ */
+async function fetchJson(url) {
+    let response;
+    try {
+        response = await fetch(url);
+    } catch (error) {
+        console.error('Error fetching HTTP response:', error);
+        // TODO: Give some feedback to the user.
+        return;
+    }
+
+    let json;
+    try {
+        json = await response.json();
+    } catch (error) {
+        console.error('Error retrieving HTTP response JSON:', error);
+        // TODO: Give some feedback to the user.
+        return;
+    }
+
+    return json;
 }
