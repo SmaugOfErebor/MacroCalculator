@@ -60,22 +60,35 @@ async function searchFood() {
     });
 }
 
+/**
+ * Adds an element representing the currently selected food for the user to specify how much was eaten.
+ */
 function addSelectedFood() {
-    const select = document.getElementById(foodResultsSelectorId);
-    const selectedOption = select.options[select.selectedIndex];
-    if (!selectedOption) return;
+    // Ensure there is a selected item.
+    const selector = document.getElementById(foodResultsSelectorId);
+    const selectedOption = selector.options[selector.selectedIndex];
+    if (!selectedOption) {
+        return;
+    }
 
+    // Disallow duplicates.
     const fdcId = selectedOption.value;
+    if (selectedFoods.some(f => f.fdcId === fdcId)) {
+        return;
+    }
+
     const description = selectedOption.textContent;
-
-    if (selectedFoods.some(f => f.fdcId === fdcId)) return; // prevent duplicates
-
     selectedFoods.push({ fdcId, description, amount: 0 });
     renderSelectedFoods();
 }
 
+/**
+ * Adds an input for each type of selected food.
+ */
 function renderSelectedFoods() {
     const selectedFoodsDiv = document.getElementById('selectedFoodsDiv');
+    // TODO: Not ideal to completely wipe and rebuild every time something is added.
+    // TODO: Loosely related, also need to add delete buttons to each entry.
     selectedFoodsDiv.innerHTML = '';
 
     selectedFoods.forEach((food, index) => {
