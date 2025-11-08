@@ -1,15 +1,18 @@
+const apiKeyInputId = 'apiKeyInput';
 const apiKeyStorageKey = 'usdaApiKey';
-
+const foodResultsSelectorId = 'foodResultsSelector';
 const selectedFoods = [];
+
+let apiKeyInput = document.getElementById(apiKeyInputId);
 
 // Load the API key immediately when the window loads.
 window.onload = () => {
-    document.getElementById('apiKey').value = getApiKey();
+    apiKeyInput.value = getApiKey();
 };
 
 // Add an event handler to store any custom API key entered by the user.
 // TODO: Confirm validity of API key entered.
-document.getElementById('apiKey').addEventListener('input', (e) => {
+apiKeyInput.addEventListener('input', (e) => {
     localStorage.setItem(apiKeyStorageKey, e.target.value);
 });
 
@@ -20,29 +23,45 @@ function getApiKey() {
     return localStorage.getItem(apiKeyStorageKey) || 'DEMO_KEY';
 }
 
+/**
+ * Qeuries the USDA API for foods with the search criteria entered by the user.
+ * Adds each result to the fod selector for the user to choose the most appropriate result.
+ */
 async function searchFood() {
-    const query = document.getElementById('searchTerm').value;
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&api_key=${getApiKey()}`;
+    const foodSearchInput = document.getElementById('foodSearchInput');
+    const searchCriteria = encodeURIComponent(foodSearchInput.value);
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${searchCriteria}&api_key=${getApiKey()}`;
+    const foodResultsSelector = document.getElementById(foodResultsSelectorId);
+    foodResultsSelector.innerHTML = '';
 
+    let response;
     try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const select = document.getElementById('foodResults');
-        select.innerHTML = '';
-
-        data.foods.forEach(food => {
-            const option = document.createElement('option');
-            option.value = food.fdcId;
-            option.textContent = food.description;
-            select.appendChild(option);
-        });
+        response = await fetch(url);
     } catch (error) {
-        console.error('Error fetching food data:', error);
+        console.error('Error fetching HTTP response:', error);
+        // TODO: Give some feedback to the user.
+        return;
     }
+
+    let data;
+    try {
+        data = await response.json();
+    } catch (error) {
+        console.error('Error retrieving HTTP response JSON:', error);
+        // TODO: Give some feedback to the user.
+        return;
+    }
+
+    data.foods.forEach(food => {
+        const option = document.createElement('option');
+        option.value = food.fdcId;
+        option.textContent = food.description;
+        foodResultsSelector.appendChild(option);
+    });
 }
 
 function addSelectedFood() {
-    const select = document.getElementById('foodResults');
+    const select = document.getElementById(foodResultsSelectorId);
     const selectedOption = select.options[select.selectedIndex];
     if (!selectedOption) return;
 
@@ -56,8 +75,8 @@ function addSelectedFood() {
 }
 
 function renderSelectedFoods() {
-    const container = document.getElementById('selectedFoods');
-    container.innerHTML = '';
+    const selectedFoodsDiv = document.getElementById('selectedFoodsDiv');
+    selectedFoodsDiv.innerHTML = '';
 
     selectedFoods.forEach((food, index) => {
         const div = document.createElement('div');
@@ -67,7 +86,7 @@ function renderSelectedFoods() {
             <label>Amount eaten (grams):</label>
             <input type="number" value="${food.amount}" onchange="updateAmount(${index}, this.value)">
         `;
-        container.appendChild(div);
+        selectedFoodsDiv.appendChild(div);
     });
 }
 
@@ -79,7 +98,7 @@ async function calculateAllMacros() {
     let totalProtein = 0, totalCarbs = 0, totalFat = 0;
 
     for (const food of selectedFoods) {
-        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${document.getElementById('apiKey').value}`;
+        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${document.getElementById(apiKeyInputId).value}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -107,7 +126,7 @@ async function calculateAllMacros() {
     }
 
     const calories = (totalProtein * 4 + totalCarbs * 4 + totalFat * 9).toFixed(1);
-    document.getElementById('results').innerHTML = `
+    document.getElementById('resultsDiv').innerHTML = `
         <h3>Total Macros</h3>
         <p><strong>Protein:</strong> ${totalProtein.toFixed(1)}g</p>
         <p><strong>Carbs:</strong> ${totalCarbs.toFixed(1)}g</p>

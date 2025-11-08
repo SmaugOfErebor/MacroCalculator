@@ -9,20 +9,20 @@
 
 <body>
     <label for="apiKey">USDA API Key:</label>
-    <input type="text" id="apiKey" placeholder="Enter your API key">
+    <input type="text" id="apiKeyInput" placeholder="Enter your API key">
 
     <h2>Search for a Food</h2>
-    <input type="text" id="searchTerm" placeholder="Enter food name">
+    <input type="text" id="foodSearchInput" placeholder="Enter food name">
     <button onclick="searchFood()">Search</button>
 
-    <select id="foodResults" size="5"></select>
+    <select id="foodResultsSelector" size="5"></select>
     <button onclick="addSelectedFood()">Add Selected Food</button>
 
     <h3>Selected Foods</h3>
-    <div id="selectedFoods"></div>
+    <div id="selectedFoodsDiv"></div>
 
     <button onclick="calculateAllMacros()">Calculate Macros</button>
-    <div id="results"></div>
+    <div id="resultsDiv"></div>
 
     <script src="script.js"></script>
 </body>
