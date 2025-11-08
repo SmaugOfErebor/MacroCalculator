@@ -26,6 +26,10 @@ function getApiKey() {
 /**
  * Qeuries the USDA API for foods with the search criteria entered by the user.
  * Adds each result to the fod selector for the user to choose the most appropriate result.
+ * TODO: Searches commonly return your search criteria, but in all caps (e.g. searching 'apple' returns 'APPLE').
+ * TODO: These results are usually under the "Branded Foods" category and their data is in a different format than the results under the "Foundation Foods" category.
+ * TODO: The results in the "Foundation Foods" category are generally what the user will want when searching for something as foundational as 'apple'.
+ * TODO: Perhaps prioritize "Foundation Foods" results when they are available?
  */
 async function searchFood() {
     const foodSearchInput = document.getElementById('foodSearchInput');
