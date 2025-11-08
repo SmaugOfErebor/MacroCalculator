@@ -1,9 +1,28 @@
-const apiKey = 'DEMO_KEY';
+const apiKeyStorageKey = 'usdaApiKey';
+
 const selectedFoods = [];
+
+// Load the API key immediately when the window loads.
+window.onload = () => {
+    document.getElementById('apiKey').value = getApiKey();
+};
+
+// Add an event handler to store any custom API key entered by the user.
+// TODO: Confirm validity of API key entered.
+document.getElementById('apiKey').addEventListener('input', (e) => {
+    localStorage.setItem(apiKeyStorageKey, e.target.value);
+});
+
+/**
+ * @returns Either a stored, custom API key or the demo API key.
+ */
+function getApiKey() {
+    return localStorage.getItem(apiKeyStorageKey) || 'DEMO_KEY';
+}
 
 async function searchFood() {
     const query = document.getElementById('searchTerm').value;
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&api_key=${apiKey}`;
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&api_key=${getApiKey()}`;
 
     try {
         const response = await fetch(url);
@@ -60,7 +79,7 @@ async function calculateAllMacros() {
     let totalProtein = 0, totalCarbs = 0, totalFat = 0;
 
     for (const food of selectedFoods) {
-        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${apiKey}`;
+        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${document.getElementById('apiKey').value}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
