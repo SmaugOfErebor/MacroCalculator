@@ -5,13 +5,27 @@ body {
     padding: 20px;
 }
 
-input,
 select,
 button {
     box-sizing: border-box;
     width: 100%;
     padding: 10px;
     margin: 10px 0;
+    font-size: 1em;
+}
+
+.header-input-div {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.header-input-div h2 {
+    margin-right: 10px;
+}
+
+.header-input-div input {
+    flex: 1;
     font-size: 1em;
 }
 
