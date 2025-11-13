@@ -24,6 +24,10 @@ button {
     margin-right: 10px;
 }
 
+.header-input-div p {
+    margin-right: 10px;
+}
+
 .header-input-div input {
     flex: 1;
     font-size: 1em;
