@@ -13,15 +13,23 @@
         <input type="text" id="apiKeyInput" placeholder="Enter your API key">
     </div>
 
-    <h2>Search for a Food</h2>
-    <input type="text" id="foodSearchInput" placeholder="Enter food name">
+    <hr class="custom-separator">
+
+    <div class="header-input-div">
+        <h2>Search for a Food:</h2>
+        <input type="text" id="foodSearchInput" placeholder="Enter food name">
+    </div>
     <button onclick="searchFood()">Search</button>
 
     <select id="foodResultsSelector" size="5"></select>
     <button onclick="addSelectedFood()">Add Selected Food</button>
 
-    <h3>Selected Foods</h3>
+    <hr class="custom-separator">
+
+    <h2>Selected Foods</h2>
     <div id="selectedFoodsDiv"></div>
+
+    <hr class="custom-separator">
 
     <button onclick="calculateAllMacros()">Calculate Macros</button>
     <div id="resultsDiv"></div>

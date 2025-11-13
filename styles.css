@@ -35,3 +35,10 @@ button {
     margin-bottom: 10px;
     border-radius: 6px;
 }
+
+hr.custom-separator {
+  border: none;
+  height: 5px;
+  background-color: #CCC;
+  margin: 20px 0;
+}
