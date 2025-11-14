@@ -1,87 +1,34 @@
 const foodResultsSelectorId = 'foodResultsSelector';
 const selectedFoods = [];
 
-const apiKeyStorageKey = 'usdaApiKey';
 const apiKeyInputId = 'apiKeyInput';
-let apiKeyInput = document.getElementById(apiKeyInputId);
+const apiKeyInput = document.getElementById(apiKeyInputId);
 
-const ageStorageKey = 'age';
-const ageInputId = 'ageInput';
-let ageInput = document.getElementById(ageInputId);
+const localStorageInputIds = [
+    apiKeyInputId,
+    'ageInput',
+    'weightInput',
+    'heightInput',
+    'proteinPercentInput',
+    'carbohydratePercentInput',
+    'fatPercentInput'
+];
 
-const weightStorageKey = 'weight';
-const weightInputId = 'weightInput';
-let weightInput = document.getElementById(weightInputId);
-
-const heightStorageKey = 'height';
-const heightInputId = 'heightInput';
-let heightInput = document.getElementById(heightInputId);
-
-const proteinPercentStorageKey = 'proteinPercent';
-const proteinPercentInputId = 'proteinPercentInput';
-let proteinPercentInput = document.getElementById(proteinPercentInputId);
-
-const carbohydratePercentStorageKey = 'carbohydratePercent';
-const carbohydratePercentInputId = 'carbohydratePercentInput';
-let carbohydratePercentInput = document.getElementById(carbohydratePercentInputId);
-
-const fatPercentStorageKey = 'fatPercent';
-const fatPercentInputId = 'fatPercentInput';
-let fatPercentInput = document.getElementById(fatPercentInputId);
-
-// Load the API key immediately when the window loads.
-window.onload = () => {
-    apiKeyInput.value = getApiKey();
-    ageInput.value = localStorage.getItem(ageStorageKey);
-    weightInput.value = localStorage.getItem(weightStorageKey);
-    heightInput.value = localStorage.getItem(heightStorageKey);
-    proteinPercentInput.value = localStorage.getItem(proteinPercentStorageKey);
-    carbohydratePercentInput.value = localStorage.getItem(carbohydratePercentStorageKey);
-    fatPercentInput.value = localStorage.getItem(fatPercentStorageKey);
-};
-
-// Add an event handler to store any custom API key entered by the user.
-// TODO: Confirm validity of API key entered.
-apiKeyInput.addEventListener('input', (e) => {
-    localStorage.setItem(apiKeyStorageKey, e.target.value);
-});
-
-// Add an event handler to store the user's age.
-ageInput.addEventListener('input', (e) => {
-    localStorage.setItem(ageStorageKey, e.target.value);
-});
-
-// Add an event handler to store the user's weight.
-weightInput.addEventListener('input', (e) => {
-    localStorage.setItem(weightStorageKey, e.target.value);
-});
-
-// Add an event handler to store the user's height.
-heightInput.addEventListener('input', (e) => {
-    localStorage.setItem(heightStorageKey, e.target.value);
-});
-
-// Add an event handler to store the user's desired protein percent.
-proteinPercentInput.addEventListener('input', (e) => {
-    localStorage.setItem(proteinPercentStorageKey, e.target.value);
-});
-
-// Add an event handler to store the user's desired carbohydrate percent.
-carbohydratePercentInput.addEventListener('input', (e) => {
-    localStorage.setItem(carbohydratePercentStorageKey, e.target.value);
-});
-
-// Add an event handler to store the user's desired fat percent.
-fatPercentInput.addEventListener('input', (e) => {
-    localStorage.setItem(fatPercentStorageKey, e.target.value);
-});
-
-/**
- * @returns Either a stored, custom API key or the demo API key.
- */
-function getApiKey() {
-    return localStorage.getItem(apiKeyStorageKey) || 'DEMO_KEY';
+// Default to the demo API key.
+if (!localStorage.getItem(apiKeyInput.dataset.storageKey)) {
+    localStorage.setItem(apiKeyInput.dataset.storageKey, 'DEMO_KEY');
 }
+
+// Load input values from local storage and add event listeners to write back to local storage on input.
+window.onload = () => {
+    localStorageInputIds.forEach(inputId => {
+        let input = document.getElementById(inputId);
+        input.value = localStorage.getItem(input.dataset.storageKey);
+        input.addEventListener('input', (e) => {
+            localStorage.setItem(input.dataset.storageKey, e.target.value);
+        })
+    });
+};
 
 /**
  * Qeuries the USDA API for foods with the search criteria entered by the user.
@@ -94,7 +41,7 @@ function getApiKey() {
 async function searchFood() {
     const foodSearchInput = document.getElementById('foodSearchInput');
     const searchCriteria = encodeURIComponent(foodSearchInput.value);
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${searchCriteria}&api_key=${getApiKey()}`;
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${searchCriteria}&api_key=${apiKeyInput.value}`;
     const foodResultsSelector = document.getElementById(foodResultsSelectorId);
     foodResultsSelector.innerHTML = '';
 
@@ -148,7 +95,7 @@ async function calculateAllMacros() {
 
     // Sum all of the macronutrients in all selected foods.
     for (const food of selectedFoods) {
-        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${getApiKey()}`;
+        const url = `https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${apiKeyInput.value}`;
 
         const json = await fetchJson(url);
         if (!json) {
