@@ -3,6 +3,10 @@ const selectedFoods = [];
 
 const apiKeyInputId = 'apiKeyInput';
 const apiKeyInput = document.getElementById(apiKeyInputId);
+// Default to the demo API key.
+if (!localStorage.getItem(apiKeyInput.dataset.storageKey)) {
+    localStorage.setItem(apiKeyInput.dataset.storageKey, 'DEMO_KEY');
+}
 
 const localStorageInputIds = [
     apiKeyInputId,
@@ -14,21 +18,14 @@ const localStorageInputIds = [
     'fatPercentInput'
 ];
 
-// Default to the demo API key.
-if (!localStorage.getItem(apiKeyInput.dataset.storageKey)) {
-    localStorage.setItem(apiKeyInput.dataset.storageKey, 'DEMO_KEY');
-}
-
 // Load input values from local storage and add event listeners to write back to local storage on input.
-window.onload = () => {
-    localStorageInputIds.forEach(inputId => {
-        let input = document.getElementById(inputId);
-        input.value = localStorage.getItem(input.dataset.storageKey);
-        input.addEventListener('input', (e) => {
-            localStorage.setItem(input.dataset.storageKey, e.target.value);
-        })
-    });
-};
+localStorageInputIds.forEach(inputId => {
+    let input = document.getElementById(inputId);
+    input.value = localStorage.getItem(input.dataset.storageKey);
+    input.addEventListener('input', (e) => {
+        localStorage.setItem(input.dataset.storageKey, e.target.value);
+    })
+});
 
 /**
  * Qeuries the USDA API for foods with the search criteria entered by the user.
