@@ -17,12 +17,27 @@ const heightStorageKey = 'height';
 const heightInputId = 'heightInput';
 let heightInput = document.getElementById(heightInputId);
 
+const proteinPercentStorageKey = 'proteinPercent';
+const proteinPercentInputId = 'proteinPercentInput';
+let proteinPercentInput = document.getElementById(proteinPercentInputId);
+
+const carbohydratePercentStorageKey = 'carbohydratePercent';
+const carbohydratePercentInputId = 'carbohydratePercentInput';
+let carbohydratePercentInput = document.getElementById(carbohydratePercentInputId);
+
+const fatPercentStorageKey = 'fatPercent';
+const fatPercentInputId = 'fatPercentInput';
+let fatPercentInput = document.getElementById(fatPercentInputId);
+
 // Load the API key immediately when the window loads.
 window.onload = () => {
     apiKeyInput.value = getApiKey();
     ageInput.value = localStorage.getItem(ageStorageKey);
     weightInput.value = localStorage.getItem(weightStorageKey);
     heightInput.value = localStorage.getItem(heightStorageKey);
+    proteinPercentInput.value = localStorage.getItem(proteinPercentStorageKey);
+    carbohydratePercentInput.value = localStorage.getItem(carbohydratePercentStorageKey);
+    fatPercentInput.value = localStorage.getItem(fatPercentStorageKey);
 };
 
 // Add an event handler to store any custom API key entered by the user.
@@ -44,6 +59,21 @@ weightInput.addEventListener('input', (e) => {
 // Add an event handler to store the user's height.
 heightInput.addEventListener('input', (e) => {
     localStorage.setItem(heightStorageKey, e.target.value);
+});
+
+// Add an event handler to store the user's desired protein percent.
+proteinPercentInput.addEventListener('input', (e) => {
+    localStorage.setItem(proteinPercentStorageKey, e.target.value);
+});
+
+// Add an event handler to store the user's desired carbohydrate percent.
+carbohydratePercentInput.addEventListener('input', (e) => {
+    localStorage.setItem(carbohydratePercentStorageKey, e.target.value);
+});
+
+// Add an event handler to store the user's desired fat percent.
+fatPercentInput.addEventListener('input', (e) => {
+    localStorage.setItem(fatPercentStorageKey, e.target.value);
 });
 
 /**
