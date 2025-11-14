@@ -1,19 +1,49 @@
-const apiKeyInputId = 'apiKeyInput';
-const apiKeyStorageKey = 'usdaApiKey';
 const foodResultsSelectorId = 'foodResultsSelector';
 const selectedFoods = [];
 
+const apiKeyStorageKey = 'usdaApiKey';
+const apiKeyInputId = 'apiKeyInput';
 let apiKeyInput = document.getElementById(apiKeyInputId);
+
+const ageStorageKey = 'age';
+const ageInputId = 'ageInput';
+let ageInput = document.getElementById(ageInputId);
+
+const weightStorageKey = 'weight';
+const weightInputId = 'weightInput';
+let weightInput = document.getElementById(weightInputId);
+
+const heightStorageKey = 'height';
+const heightInputId = 'heightInput';
+let heightInput = document.getElementById(heightInputId);
 
 // Load the API key immediately when the window loads.
 window.onload = () => {
     apiKeyInput.value = getApiKey();
+    ageInput.value = localStorage.getItem(ageStorageKey);
+    weightInput.value = localStorage.getItem(weightStorageKey);
+    heightInput.value = localStorage.getItem(heightStorageKey);
 };
 
 // Add an event handler to store any custom API key entered by the user.
 // TODO: Confirm validity of API key entered.
 apiKeyInput.addEventListener('input', (e) => {
     localStorage.setItem(apiKeyStorageKey, e.target.value);
+});
+
+// Add an event handler to store the user's age.
+ageInput.addEventListener('input', (e) => {
+    localStorage.setItem(ageStorageKey, e.target.value);
+});
+
+// Add an event handler to store the user's weight.
+weightInput.addEventListener('input', (e) => {
+    localStorage.setItem(weightStorageKey, e.target.value);
+});
+
+// Add an event handler to store the user's height.
+heightInput.addEventListener('input', (e) => {
+    localStorage.setItem(heightStorageKey, e.target.value);
 });
 
 /**
