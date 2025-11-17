@@ -27,6 +27,26 @@ localStorageInputIds.forEach(inputId => {
     })
 });
 
+// Add event listeners to all the goal mode radio buttons to store the selection in local storage.
+const goalRadioGroupName = 'goalRadio';
+const goalModeStorageKey = 'goalMode';
+const goalRadios = document.querySelectorAll(`input[name="${goalRadioGroupName}"]`);
+goalRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+        if (radio.checked) {
+            localStorage.setItem(goalModeStorageKey, radio.value);
+        }
+    });
+});
+
+// Load the selected goal mode. Default to maintaining weight.
+const goalMode = localStorage.getItem(goalModeStorageKey);
+if (goalMode) {
+    document.querySelector(`input[name="${goalRadioGroupName}"][value="${goalMode}"]`).checked = true;
+} else {
+    document.querySelector(`input[name="${goalRadioGroupName}"][value="maintainWeight"]`).checked = true;
+}
+
 /**
  * Qeuries the USDA API for foods with the search criteria entered by the user.
  * Adds each result to the fod selector for the user to choose the most appropriate result.
