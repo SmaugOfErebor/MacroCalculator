@@ -47,6 +47,27 @@ if (goalMode) {
     document.querySelector(`input[name="${goalRadioGroupName}"][value="maintainWeight"]`).checked = true;
 }
 
+// Set up the food search modal.
+const foodSearchModal = document.getElementById("foodSearchModal");
+const foodSearchCloseButton = document.getElementById("closeModal");
+
+// Add an event listener to close the food search modal when the X button is clicked.
+foodSearchCloseButton.onclick = () => {
+  foodSearchModal.style.display = "none";
+};
+
+// Close if user clicks outside modal content.
+window.onclick = (event) => {
+  if (event.target === foodSearchModal) {
+    foodSearchModal.style.display = "none";
+  }
+};
+
+function openFoodSearch(type) {
+  foodSearchModal.style.display = "block";
+  foodSearchModal.dataset.searchType = type;
+}
+
 /**
  * Qeuries the USDA API for foods with the search criteria entered by the user.
  * Adds each result to the fod selector for the user to choose the most appropriate result.
@@ -75,7 +96,7 @@ async function searchFood() {
 /**
  * Adds an element representing the currently selected food for the user to specify how much was eaten.
  */
-function addSelectedFood() {
+function addEatenFood() {
     // Ensure there is a selected item.
     const selector = document.getElementById(foodResultsSelectorId);
     const selectedFood = selector.options[selector.selectedIndex];
@@ -93,9 +114,12 @@ function addSelectedFood() {
     selectedFoods.push(selectedFood.json);
 
     // Add a selected food template visually corresponding to this new selected food.
-    const selectedFoodsDiv = document.getElementById('selectedFoodsDiv');
+    const eatenFoodsDiv = document.getElementById('eatenFoodsDiv');
     const newSelectedFood = new SelectedFoodItem(selectedFood.json);
-    selectedFoodsDiv.appendChild(newSelectedFood.element);
+    eatenFoodsDiv.appendChild(newSelectedFood.element);
+
+    // Close the food search modal.
+    foodSearchModal.style.display = "none";
 }
 
 function updateAmount(index, value) {

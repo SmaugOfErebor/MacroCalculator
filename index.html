@@ -80,24 +80,30 @@
 
     <hr class="custom-separator">
 
-    <div class="header-input-div">
-        <h2>Search for a Food:</h2>
-        <input type="text" id="foodSearchInput" placeholder="Enter food name">
-    </div>
-    <button onclick="searchFood()">Search</button>
-
-    <select id="foodResultsSelector" size="5"></select>
-    <button onclick="addSelectedFood()">Add Selected Food</button>
-
-    <hr class="custom-separator">
-
-    <h2>Selected Foods</h2>
-    <div id="selectedFoodsDiv"></div>
+    <h2>Eaten Foods</h2>
+    <button onclick="openFoodSearch('eaten')">Add Food</button>
+    <div id="eatenFoodsDiv"></div>
 
     <hr class="custom-separator">
 
     <button onclick="calculateAllMacros()">Calculate Macros</button>
     <div id="resultsDiv"></div>
+
+    <!-- Food search modal overlay -->
+    <div id="foodSearchModal" class="food-search-modal">
+        <div class="food-search-modal-content">
+            <span id="closeModal" class="close">&times;</span>
+
+            <!-- Your existing search form goes here -->
+            <div class="header-input-div">
+                <h2>Search for a Food:</h2>
+                <input type="text" id="foodSearchInput" placeholder="Enter food name">
+            </div>
+            <button onclick="searchFood()">Search</button>
+            <select id="foodResultsSelector" size="5"></select>
+            <button onclick="addEatenFood()">Add Selected Food</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 
