@@ -106,7 +106,8 @@ function addEatenFood() {
 
     // Disallow duplicates.
     const fdcId = selectedFood.json.fdcId;
-    if (selectedFoods.some(f => f.json.fdcId === fdcId)) {
+    if (selectedFoods.some(f => f.fdcId === fdcId)) {
+        // TODO: Inform the user that they tried to add a duplicate.
         return;
     }
 
