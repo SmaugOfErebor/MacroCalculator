@@ -94,16 +94,38 @@ async function searchFood() {
 }
 
 /**
- * Adds an element representing the currently selected food for the user to specify how much was eaten.
+ * Adds the selected food either as an eaten food or a filler food depenging on where the food search was opened.
  */
-function addEatenFood() {
+function addFood() {
     // Ensure there is a selected item.
     const selector = document.getElementById(foodResultsSelectorId);
     const selectedFood = selector.options[selector.selectedIndex];
     if (!selectedFood) {
         return;
     }
+    console.log(selectedFood);
 
+    switch (foodSearchModal.dataset.searchType) {
+        case 'eaten':
+            addEatenFood(selectedFood);
+            break;
+
+        case 'filler':
+            // TODO: Add filler food.
+            break;
+        
+        default:
+            // FIXME: ERROR
+    }
+
+    // Close the food search modal.
+    foodSearchModal.style.display = "none";
+}
+
+/**
+ * Adds an element representing the currently selected food for the user to specify how much was eaten.
+ */
+function addEatenFood(selectedFood) {
     // Disallow duplicates.
     const fdcId = selectedFood.json.fdcId;
     if (selectedFoods.some(f => f.fdcId === fdcId)) {
@@ -118,9 +140,6 @@ function addEatenFood() {
     const eatenFoodsDiv = document.getElementById('eatenFoodsDiv');
     const newSelectedFood = new SelectedFoodItem(selectedFood.json);
     eatenFoodsDiv.appendChild(newSelectedFood.element);
-
-    // Close the food search modal.
-    foodSearchModal.style.display = "none";
 }
 
 function updateAmount(index, value) {
