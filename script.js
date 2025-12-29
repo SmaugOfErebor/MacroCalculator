@@ -1,4 +1,6 @@
-const foodResultsSelectorId = 'foodResultsSelector';
+import { fetchJson } from '/components/utils.js';
+import { openFoodSelector } from '/components/food_search_modal.js';
+
 const selectedFoods = [];
 
 const apiKeyInputId = 'apiKeyInput';
@@ -47,104 +49,42 @@ if (goalMode) {
     document.querySelector(`input[name="${goalRadioGroupName}"][value="maintainWeight"]`).checked = true;
 }
 
-// Set up the food search modal.
-const foodSearchModal = document.getElementById("foodSearchModal");
-const foodSearchCloseButton = document.getElementById("closeModal");
-
-// Add an event listener to close the food search modal when the X button is clicked.
-foodSearchCloseButton.onclick = () => {
-  foodSearchModal.style.display = "none";
-};
-
-// Close if user clicks outside modal content.
-window.onclick = (event) => {
-  if (event.target === foodSearchModal) {
-    foodSearchModal.style.display = "none";
-  }
-};
-
-function openFoodSearch(type) {
-  foodSearchModal.style.display = "block";
-  foodSearchModal.dataset.searchType = type;
-}
+document.querySelector('.add-eaten-food-btn').addEventListener('click', addEatenFood);
 
 /**
- * Qeuries the USDA API for foods with the search criteria entered by the user.
- * Adds each result to the fod selector for the user to choose the most appropriate result.
- * TODO: Searches commonly return your search criteria, but in all caps (e.g. searching 'apple' returns 'APPLE').
- * TODO: These results are usually under the "Branded Foods" category and their data is in a different format than the results under the "Foundation Foods" category.
- * TODO: The results in the "Foundation Foods" category are generally what the user will want when searching for something as foundational as 'apple'.
- * TODO: Perhaps prioritize "Foundation Foods" results when they are available?
+ * Opens the food selector modal and adds the selected food to the eaten foods list.
  */
-async function searchFood() {
-    const foodSearchInput = document.getElementById('foodSearchInput');
-    const searchCriteria = encodeURIComponent(foodSearchInput.value);
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${searchCriteria}&api_key=${apiKeyInput.value}`;
-    const foodResultsSelector = document.getElementById(foodResultsSelectorId);
-    foodResultsSelector.innerHTML = '';
+async function addEatenFood() {
+    const food = await openFoodSelector(apiKeyInput.value);
 
-    const json = await fetchJson(url);
-
-    json.foods.forEach(food => {
-        const option = document.createElement('option');
-        option.json = food;
-        option.textContent = food.description;
-        foodResultsSelector.appendChild(option);
-    });
-}
-
-/**
- * Adds the selected food either as an eaten food or a filler food depenging on where the food search was opened.
- */
-function addFood() {
-    // Ensure there is a selected item.
-    const selector = document.getElementById(foodResultsSelectorId);
-    const selectedFood = selector.options[selector.selectedIndex];
-    if (!selectedFood) {
+    if (!food) {
+        console.log("User canceled");
         return;
     }
-    console.log(selectedFood);
 
-    switch (foodSearchModal.dataset.searchType) {
-        case 'eaten':
-            addEatenFood(selectedFood);
-            break;
+    console.log(food);
 
-        case 'filler':
-            // TODO: Add filler food.
-            break;
-        
-        default:
-            // FIXME: ERROR
-    }
-
-    // Close the food search modal.
-    foodSearchModal.style.display = "none";
-}
-
-/**
- * Adds an element representing the currently selected food for the user to specify how much was eaten.
- */
-function addEatenFood(selectedFood) {
     // Disallow duplicates.
-    const fdcId = selectedFood.json.fdcId;
+    const fdcId = food.fdcId;
     if (selectedFoods.some(f => f.fdcId === fdcId)) {
         // TODO: Inform the user that they tried to add a duplicate.
         return;
     }
 
     // Add the food JSON to the selected foods array.
-    selectedFoods.push(selectedFood.json);
+    selectedFoods.push(food);
 
     // Add a selected food template visually corresponding to this new selected food.
     const eatenFoodsDiv = document.getElementById('eatenFoodsDiv');
-    const newSelectedFood = new SelectedFoodItem(selectedFood.json);
+    const newSelectedFood = new SelectedFoodItem(food);
     eatenFoodsDiv.appendChild(newSelectedFood.element);
 }
 
 function updateAmount(index, value) {
     selectedFoods[index].amount = parseFloat(value) || 0;
 }
+
+document.querySelector('.calculate-macros-btn').addEventListener('click', calculateAllMacros);
 
 /**
  * Calculates the sum of macronutirents and calories from all selected foods.
@@ -202,34 +142,6 @@ async function calculateAllMacros() {
         <p><strong>Fat:</strong> ${totalFat.toFixed(1)}g</p>
         <p><strong>Calories:</strong> ${calories}</p>
     `;
-}
-
-/**
- * Performs the HTTP response fetch and awaiting the JSON from the response.
- * In the future, will give detailed error feedback to the user.
- * @param {string} url
- * @returns Either undefined in the case of an error of the JSON from the HTTP response.
- */
-async function fetchJson(url) {
-    let response;
-    try {
-        response = await fetch(url);
-    } catch (error) {
-        console.error('Error fetching HTTP response:', error);
-        // TODO: Give some feedback to the user.
-        return;
-    }
-
-    let json;
-    try {
-        json = await response.json();
-    } catch (error) {
-        console.error('Error retrieving HTTP response JSON:', error);
-        // TODO: Give some feedback to the user.
-        return;
-    }
-
-    return json;
 }
 
 class SelectedFoodItem {
