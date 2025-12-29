@@ -80,10 +80,6 @@ async function addEatenFood() {
     eatenFoodsDiv.appendChild(newSelectedFood.element);
 }
 
-function updateAmount(index, value) {
-    selectedFoods[index].amount = parseFloat(value) || 0;
-}
-
 document.querySelector('.calculate-macros-btn').addEventListener('click', calculateAllMacros);
 
 /**
